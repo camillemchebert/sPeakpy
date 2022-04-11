@@ -1,9 +1,11 @@
+import numpy as np
+
 class Segmentation:
     def __init__(self, signal_):
         self.signal_ = signal_
         
         Segmentation.index_noise_bin = []
-        
+    
         crest_ind=[]
         trough_ind=[]
         
@@ -45,18 +47,16 @@ class Segmentation:
         for i in np.arange(np.shape(crest_ind)[0]-1):
             for j in np.arange(np.shape(trough_ind)[0]):
                 if crest_ind[i]<trough_ind[j] and crest_ind[i+1]>trough_ind[j]:
-                    positive_feature = np.arange(crest_ind[i], trough_ind[j])
+                    positive_feature = np.arange(crest_ind[i], trough_ind[j]+1)
                     negative_feature = np.arange(trough_ind[j], crest_ind[i+1])
-                    
-                    if len(positive_feature)>=len(negative_feature):
-                        index_array.append(np.arange(trough_ind[j]-len(negative_feature),trough_ind[j]+len(negative_feature)))
-                        sobel_positive_feature.append(np.arange(trough_ind[j]-len(negative_feature),trough_ind[j]))
-                        sobel_negative_feature.append(np.arange(trough_ind[j],trough_ind[j]+len(negative_feature)))
-                                          
-                    elif len(positive_feature)<=len(negative_feature):
-                        index_array.append(np.arange(trough_ind[j]-len(positive_feature),trough_ind[j]+len(positive_feature)))
-                        sobel_positive_feature.append(np.arange(trough_ind[j]-len(positive_feature),trough_ind[j]))
-                        sobel_negative_feature.append(np.arange(trough_ind[j],trough_ind[j]+len(positive_feature)))
-         
+                    if len(positive_feature)>2 and len(negative_feature)>2:
+                        if len(positive_feature)>=len(negative_feature):
+                            index_array.append(np.arange(trough_ind[j]-len(negative_feature),trough_ind[j]+len(negative_feature)+1))
+                                           
+                        else:
+                            index_array.append(np.arange(trough_ind[j]-len(positive_feature),trough_ind[j]+len(positive_feature)+1))
+
+                    else:
+                        Segmentation.index_noise_bin.append(np.arange(crest_ind[i], crest_ind[i+1]))
+        
         self.index_segment_=index_array
-        self.index_noise_=noise_array

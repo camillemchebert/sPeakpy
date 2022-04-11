@@ -1,11 +1,13 @@
+import numpy as np
+
 class Preprocessing:
     """ Preprocessing class """
     def __init__(self,energy, intensity, filter_type=None, ws=None):
         
-        self.intensity = intensity
-        self.sobel_ = self.sobel_filter()
-
         Preprocessing.energy = energy
+        Preprocessing.intensity = intensity
+        self.sobel_ = self.sobel_filter()
+        
         try:
             if filter_type == None:
                 Preprocessing.signal_ = sobel_
@@ -18,7 +20,7 @@ class Preprocessing:
 
     def sobel_filter(self):
         sobel_v = np.array([1,0,-1])
-        conv_sobel=np.convolve(sobel_v, self.intensity, 'same')
+        conv_sobel=np.convolve(sobel_v, Preprocessing.intensity, 'same')
         sobel=conv_sobel-np.mean(conv_sobel)
         return sobel
     
