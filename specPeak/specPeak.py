@@ -2,7 +2,7 @@ import sys
 import os
 import pandas as pd
 import numpy as np
-from tkinter.filedialog import askopenfilename
+from tkinter.filedialog import askopenfilenames
 from specPeak.Preprocessing import Preprocessing
 from specPeak.Segmentation import Segmentation
 from specPeak.Classification import Classification
