@@ -181,3 +181,4 @@ class Peak:
         plt.xlabel('Energy (keV)')
         plt.ylabel('Intensity (counts)')
         plt.show()
+

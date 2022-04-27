@@ -4,8 +4,11 @@ import specPeak.Preprocessing as Preprocessing
 import specPeak.Segmentation as Segmentation
 #import specPeak.Data as data
 import numpy as np
+
 import matplotlib.pyplot as plt
 from scipy.stats import norm
+
+
 
 class Classification:
     """ Classification class """
@@ -18,7 +21,7 @@ class Classification:
             self.threshold = threshold
             
         self.energy = Preprocessing.Preprocessing.energy
-        self.signal_ = Preprocessing.Preprocessing.sobel_filter(Preprocessing.Preprocessing.signal_)
+        self.signal_ = Preprocessing.Preprocessing.signal_
         self.index_segment_=index_segment_
         
         print('Threshold: %f' %self.threshold)
@@ -26,11 +29,13 @@ class Classification:
         self.index_segment_bin = []
         self.index_temp_bin = []
         self.percent = []
+
         self.qualification_=self.qualification()
         self.quantification_=self.quantification()
        
     def reference_clustering(self, x_ref, y_ref, pred):
                 
+
         sim_y_pred = np.ones(len(y_ref))
         sim_y_pred[0:int(np.rint(len(y_ref)/2))]=0
         eval_score = adjusted_mutual_info_score(sim_y_pred, pred)
@@ -79,9 +84,3 @@ class Classification:
             else:
                 Segmentation.Segmentation.index_noise_bin.append(i)
                # noise_sum_val.append(sum(abs(self.signal_[i])))
-
-
-
-        
-
-            

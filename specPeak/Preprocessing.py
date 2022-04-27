@@ -2,7 +2,9 @@ import numpy as np
 
 class Preprocessing:
     """ Preprocessing class """
+
     def __init__(self,energy, intensity, p_res=None, b_res=None):
+
         
         Preprocessing.energy = energy
         Preprocessing.intensity = intensity
@@ -13,12 +15,14 @@ class Preprocessing:
                 Preprocessing.signal_ = self.smooth_filter('moving_avg', None)
             else:
                 Preprocessing.signal_ = self.smooth_filter('moving_avg', int(p_res/b_res))
+
         except NameError:
             print('Need to be a valid data filter')
             raise
                     
 
     def sobel_filter(self):
+
         c = np.zeros(len(Preprocessing.intensity))
         #sobel_v = np.array([1,0,-1])
         #conv_sobel=np.convolve(sobel_v, Preprocessing.intensity, 'same')
@@ -26,6 +30,7 @@ class Preprocessing:
         for i in np.arange(1,len(Preprocessing.intensity)-1):
             c[i]=-(Preprocessing.intensity[i-1]*1+(Preprocessing.intensity[i])*0+(Preprocessing.intensity[i+1])*-1+Preprocessing.intensity[i-1]*2+(Preprocessing.intensity[i])*0+(Preprocessing.intensity[i+1])*-2+Preprocessing.intensity[i-1]*1+(Preprocessing.intensity[i])*0+(Preprocessing.intensity[i+1])*-1)
         return c
+
     
     def smooth_filter(self, filter_type, ws):
         if filter_type == 'sav_gol':
@@ -57,8 +62,10 @@ class Preprocessing:
         
         elif filter_type == 'moving_avg':
             if ws == None:
+
                 ws = 7
                 print('No information inputed concerning peak resolution of the instrument. Default value generated')
+
             mean_vector = np.ones(ws)/ws
             movav_filter=np.convolve(mean_vector, self.sobel_, 'same')
             print('Signal transformed with moving average filter using window size of %d' %ws)
