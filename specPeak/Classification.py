@@ -177,10 +177,7 @@ class Classification:
                     self.percent.append(threshold_criterion)
 
                 else:
-                    Segmentation.Segmentation.index_noise_bin.append(i)
-
-
-        
+                    Segmentation.Segmentation.index_noise_bin.append(i)        
 
         plt.figure()
         plt.plot(all_bin, cross_entropy)
