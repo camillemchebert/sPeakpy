@@ -4,6 +4,10 @@ from specPeak.Segmentation import Segmentation
 from specPeak.Classification import Classification
 from specPeak.Identification import Identification
 import matplotlib.pyplot as plt
+from matplotlib import ticker
+import pandas
+from matplotlib.ticker import FormatStrFormatter
+
 import os
 
 class Peak:
@@ -106,12 +110,10 @@ class Peak:
         moving average filter with a window size corresponding to the specification
         of the instrument. Default values are provided with a standard portable
         XRF instrument with peak resolution of 140 eV and bin resolution of 20 eV.
-        (corresponding to window size of 7).
-
-        Segmentation uses the transformed signal to identify oscillation patterns.
+        (corresponding to window size of 7). Segmentation uses the transformed signal to identify oscillation patterns.
         The indices of the data distribution from positive and negative (and
         negative to positive) values are extracted. Indices of N-segments are
-        returned for feature extraction and classification.
+        returned for classification.
 
         Classification uses spectral clustering to identify a continuous distribution
         of positive to negative features of the transformed data. The score obtained
@@ -132,9 +134,9 @@ class Peak:
         Please note that specPeak algorithm does not quantify elemental composition.
         It only extracts peak-like features through spectral clustering and provides
         an ESTIMATE of possible elements contained in a spectrum. Percentage score
-        should be regarded as a guideline and is always relative to the noise
-        distribution of the spectrum. High noise levels reduces the efficiency of the
-        algorithm leading to possible misidentification of peak-like features to
+        should be regarded as a guideline and is always relative to the maximum peak
+        of the spectrum. High noise levels reduces the efficiency of the algorithm
+        leading to possible misidentification (or lack) of peak-like features to
         elements.
         
         Example
@@ -150,11 +152,39 @@ class Peak:
 
         self.energy = energy
         self.intensity = intensity
+
+        self.entropy_list = [1]
         
         self.r=Preprocessing(self.energy, self.intensity, p_res, b_res)
-        self.s=Segmentation(self.r.signal_)
+        self.s=Segmentation(self.r.signal_, False)
         self.c=Classification(self.s.index_segment_, threshold)
-        self.e=Identification(self.c.index_segment_bin, dataType, self.c.percent)
+
+##        while self.entropy_list[len(self.entropy_list)-2]-self.c.entropy>0.01:
+##            self.c=Classification(self.c.index_segment_, threshold)
+##            self.entropy=self.c.entropy
+##            self.entropy_list.append(self.c.entropy)
+        ##        
+        self.c2=Classification(self.c.index_segment_bin, threshold)
+        self.c3=Classification(self.c2.index_segment_bin, threshold)
+        self.c4=Classification(self.c3.index_segment_bin, threshold)
+        self.c5=Classification(self.c4.index_segment_bin, threshold)
+        
+        
+##        self.c7=Classification(self.c6.index_segment_bin, threshold)
+##        self.c8=Classification(self.c7.index_segment_bin, threshold)
+        #self.c9=Classification(self.c8.index_segment_bin, threshold)
+
+        #print(len(self.c6.index_segment_bin))
+
+        self.e=Identification(self.c5.index_segment_bin, dataType, self.c5.percent)
+
+        b=[]
+        for i in np.arange(len(Segmentation.index_noise_bin)):
+            b.append(list(Preprocessing.intensity[Segmentation.index_noise_bin[i]]))
+
+        plt.figure()
+        plt.hist((np.concatenate(b)))
+        plt.show()
 
         if plot_data==True:
             self.plot_()
@@ -167,17 +197,39 @@ class Peak:
         else:
             if not os.path.isdir('Results'):
                 os.mkdir('Results')
-            if not os.path.isdir(os.path.join('Results', fileName+'.csv')):
-                os.mkdir(os.path.join('Results',fileName+'.csv'))
+            #if not os.path.isdir(os.path.join('Results', fileName+'.csv')):
+            self.e.EDXRF_ID().to_csv(os.path.join('.','Results', fileName+'.csv'), index=False)
+                #os.mkdir(os.path.join('Results',fileName+'.csv'))
 
-    def plot_(self):
-        fig, ax = plt.subplots(2,1)
-        ax[0].plot(self.energy, self.intensity, color='lightgray', alpha=0.8)
-        ax[1].plot(self.energy, self.intensity, color='lightgray', alpha=0.8)
-        ax[1].set_yscale('log')
-        for i in self.c.index_segment_bin:
-            ax[0].plot(self.energy[i], self.intensity[i])
-            ax[1].plot(self.energy[i], self.intensity[i])
-        plt.xlabel('Energy (keV)')
-        plt.ylabel('Intensity (counts)')
+    def plot_(self):        
+        fig, ax = plt.subplots(1,1, dpi=500, figsize=self.cm2inch(19,5), sharex=True)
+        plt.rc('font', family='serif',size=11)
+        ax.set_ylabel('Intensity (counts)')
+        ax.plot(self.energy, self.intensity, color='lightgray', linewidth=1.0, alpha=0.5)
+        #ax.plot(self.energy, self.intensity, color='lightgray', alpha=0.8)
+        ax.set_yscale('log')
+        for i in self.c5.index_segment_bin:
+            #for axis in ax:
+            ax.plot(self.energy[i], self.intensity[i], color='black', linewidth=0.5, alpha=0.8)
+            ax.axvline(self.energy[i][np.argmax(self.intensity[i])], alpha=0.2, linestyle=':', color='lightgray')
+        ax.set_xlabel('Energy (keV)')
+        #ax.set_xticks([])
+        #ax.set_ylabel('Intensity (counts)')
+        formatter = ticker.ScalarFormatter(useMathText=True)
+        formatter.set_scientific(True) 
+        formatter.set_powerlimits((-3, 3)) 
+        ax.yaxis.set_major_formatter(formatter)
+        #ax[0].yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
+        #ax[1].yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
+        ax.yaxis.set_major_formatter(formatter) 
+        #ax[0].set_yticks([0,  160000])
+        #ax[1].set_yticks([0,6000, 120000])
+        #ax[0].legend({'160 seconds'})
         plt.show()
+
+    def cm2inch(self,*tupl):
+        inch = 2.54
+        if isinstance(tupl[0], tuple):
+            return tuple(i/inch for i in tupl[0])
+        else:
+            return tuple(i/inch for i in tupl)

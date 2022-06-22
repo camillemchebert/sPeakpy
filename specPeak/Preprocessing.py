@@ -1,5 +1,6 @@
 import numpy as np
 
+
 class Preprocessing:
     """ Preprocessing class """
     def __init__(self,energy, intensity, p_res=None, b_res=None):
@@ -7,6 +8,8 @@ class Preprocessing:
         Preprocessing.energy = energy
         Preprocessing.intensity = intensity
         self.sobel_ = self.sobel_filter()
+
+
         
         try:
             if p_res == None or b_res == None:
@@ -19,13 +22,23 @@ class Preprocessing:
                     
 
     def sobel_filter(self):
-        c = np.zeros(len(Preprocessing.intensity))
-        #sobel_v = np.array([1,0,-1])
-        #conv_sobel=np.convolve(sobel_v, Preprocessing.intensity, 'same')
-        #sobel=conv_sobel-np.mean(conv_sobel)
-        for i in np.arange(1,len(Preprocessing.intensity)-1):
-            c[i]=-(Preprocessing.intensity[i-1]*1+(Preprocessing.intensity[i])*0+(Preprocessing.intensity[i+1])*-1+Preprocessing.intensity[i-1]*2+(Preprocessing.intensity[i])*0+(Preprocessing.intensity[i+1])*-2+Preprocessing.intensity[i-1]*1+(Preprocessing.intensity[i])*0+(Preprocessing.intensity[i+1])*-1)
-        return c
+        signal = np.zeros(len(Preprocessing.intensity))
+        sobel_kernel_x = [[-1,0,1],[-2, 0, 2],[-1, 0, 1]]
+        sobel_kernel_y = [[1,2,1],[0, 0, 0],[-1, -2, -1]]
+
+        
+        for i in np.arange(0,len(Preprocessing.intensity)-2):
+            sum_sobel=[]
+            for j in np.arange(len(sobel_kernel_x)):
+                s_sobel_x=0
+                s_sobel_y=0
+                for k in np.arange(len(sobel_kernel_x)):
+                    s_sobel_x+=(Preprocessing.intensity[i+k]**2*sobel_kernel_x[j][k])
+                    s_sobel_y+=(Preprocessing.intensity[i+k]**2*sobel_kernel_y[j][k]) # no variation for Gy (equivalent to 0)
+                sum_sobel.append(sum([s_sobel_x,s_sobel_y]))
+            signal[i+1]=sum(sum_sobel)#(Preprocessing.intensity[i]*sobel_kernel_x[j][j])#+(Preprocessing.intensity[i+1])*0+(Preprocessing.intensity[i+2])*1+Preprocessing.intensity[i]*-2+(Preprocessing.intensity[i+1])*0+(Preprocessing.intensity[i+2])*2+Preprocessing.intensity[i]*-1+(Preprocessing.intensity[i+1])*0+(Preprocessing.intensity[i+2])*1)
+            
+        return signal
     
     def smooth_filter(self, filter_type, ws):
         if filter_type == 'sav_gol':
@@ -59,7 +72,7 @@ class Preprocessing:
             if ws == None:
                 ws = 7
                 print('No information inputed concerning peak resolution of the instrument. Default value generated')
-            mean_vector = np.ones(ws)/ws
+            mean_vector = (np.ones(ws)/ws)
             movav_filter=np.convolve(mean_vector, self.sobel_, 'same')
             print('Signal transformed with moving average filter using window size of %d' %ws)
             return movav_filter
