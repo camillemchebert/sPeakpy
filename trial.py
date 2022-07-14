@@ -55,7 +55,7 @@ from scipy.special import erf
 
 # Synthetic spectra
 
-channel=0.021
+channel=0.0208
 channels=np.arange(-1, 40, channel)
 
 energy_Ka1=[]
@@ -64,20 +64,20 @@ energy_La1=[]
 energy_Lb1=[]
 element_list=[]
 
-with open("Energy_Levels.txt", "r") as file:
-    data = file.readlines()[1:]
-    for line in data:
-        line = line.split(',')
-        element_list.append(str(line[1]))
-        energy_Ka1.append(float(line[2]))
-        energy_Kb1.append(float(line[4]))
-        if np.isnan(float(line[5])) or np.isnan(float(line[7])):
-            energy_La1.append(0)
-            energy_Lb1.append(0)
+# with open("Energy_Levels.txt", "r") as file:
+#     data = file.readlines()[1:]
+#     for line in data:
+#         line = line.split(',')
+#         element_list.append(str(line[1]))
+#         energy_Ka1.append(float(line[2]))
+#         energy_Kb1.append(float(line[4]))
+#         if np.isnan(float(line[5])) or np.isnan(float(line[7])):
+#             energy_La1.append(0)
+#             energy_Lb1.append(0)
             
-        else:
-            energy_La1.append(float(line[5]))
-            energy_Lb1.append(float(line[7]))
+#         else:
+#             energy_La1.append(float(line[5]))
+#             energy_Lb1.append(float(line[7]))
         
 
 
@@ -86,7 +86,12 @@ input_data = import_data()
 for i in np.arange(np.shape(input_data)[0]):
     energy = np.array(input_data[i][0]) 
     intensity = np.array(input_data[i][1])
-    element_peaks = sp.Peak(energy, intensity, p_res=140, b_res=20)
+    element_peaks = sp.Peak(energy, intensity, p_res=150, b_res=20)
+    print((max(element_peaks.e.cs[1][1])/sum(element_peaks.e.cs[0][1])))#-((sum(element_peaks.e.cs[3][1])/sum(element_peaks.e.cs[2][1]))-((sum(element_peaks.e.cs[1][1])/sum(element_peaks.e.cs[0][1])))))
+    print(((max(element_peaks.e.cs[1][1])/sum(element_peaks.e.cs[0][1])))+(((sum(element_peaks.e.cs[3][1])/sum(element_peaks.e.cs[2][1]))-(sum(element_peaks.e.cs[1][1])/sum(element_peaks.e.cs[0][1])))))
+    print(((max(element_peaks.e.cs[1][1])/sum(element_peaks.e.cs[0][1])))+(((max(element_peaks.e.cs[3][1])/sum(element_peaks.e.cs[2][1])))))#-(sum(element_peaks.e.cs[1][1])/sum(element_peaks.e.cs[0][1])))))
+    
+    print('--------------------------------------')
     
 
 # energy_MA =[]

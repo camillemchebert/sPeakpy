@@ -19,8 +19,13 @@ class Identification:
         rayleigh_range=[20., 20.75]
         compton_range=[18.75, 19.5]
 
+        r2 = [22.25, 23]
+        c2= [21, 22]
+
         compton_cs = 0
         rayleigh_cs = 0
+        compton_cs2 = 0
+        rayleigh_cs2 = 0
         
         for i in index_segments:
             max_ind = np.argmax(Preprocessing.Preprocessing.intensity[i])            
@@ -35,13 +40,22 @@ class Identification:
                 rayleigh_cs = [Preprocessing.Preprocessing.energy[i], Preprocessing.Preprocessing.intensity[i]]
                 max_val_rayleigh = Preprocessing.Preprocessing.intensity[i][max_ind]
 
+            if val >= c2[0] and val <= c2[1]:
+                compton_cs2 = [Preprocessing.Preprocessing.energy[i], Preprocessing.Preprocessing.intensity[i]]
+                max_val_compton2 = Preprocessing.Preprocessing.intensity[i][max_ind]
+          
+            
+            if val >= r2[0] and val <= r2[1]:
+                rayleigh_cs2 = [Preprocessing.Preprocessing.energy[i], Preprocessing.Preprocessing.intensity[i]]
+                max_val_rayleigh2 = Preprocessing.Preprocessing.intensity[i][max_ind] 
+
         if compton_cs==0:
             compton_cs = 'None'
         if rayleigh_cs==0:
             rayleigh_cs = 'None'
                     
-        print(compton_cs, rayleigh_cs)
-        return compton_cs, rayleigh_cs
+        print(compton_cs, rayleigh_cs, compton_cs2, rayleigh_cs2)
+        return compton_cs, rayleigh_cs, compton_cs2, rayleigh_cs2
             
             
     def EDXRF_ID(self):
