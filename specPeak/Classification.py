@@ -15,7 +15,8 @@ class Classification:
             self.threshold = 0.0
         else:
             self.threshold = threshold
-            
+
+        threshold = 0.0
         self.energy = Preprocessing.Preprocessing.energy
         self.intensity = Preprocessing.Preprocessing.intensity
         self.signal_ = Preprocessing.Preprocessing.signal_
@@ -137,6 +138,17 @@ class Classification:
         probabilities_noise= (1/(np.std(noise_sum_val)*np.sqrt(2*np.pi)))*np.exp(-0.5*(((all_bin)-np.mean(noise_sum_val))/np.std(noise_sum_val))**2)
         probabilities_peak= (1/(np.std(peak_sum_val)*np.sqrt(2*np.pi)))*np.exp(-0.5*(((all_bin)-np.mean(peak_sum_val))/np.std(peak_sum_val))**2)
 
+        #noise_val=0
+        #erf_noise=np.zeros(np.shape(noise_sum_val))
+        #for i in noise_sum_val:
+        #    noise_val += i
+        #    erf_noise[i] = (2/(np.pi**0.5))*np.exp(noise_val**2)
+
+        #plt.figure()
+        #plt.plot(noise_sum_val, erf_noise)
+        #plt.show()
+        #erf_peak = 
+
 
         mm = np.zeros([len(probabilities_noise), len(probabilities_peak)])
 
@@ -146,8 +158,8 @@ class Classification:
                 mm[j]=probabilities_peak[j]
 
         probabilities_all = dist_all.pdf(all_bin)
-        probabilities_noise=probabilities_noise/(sum(probabilities_noise)+sum(probabilities_peak))
-        probabilities_peak=probabilities_peak/(sum(probabilities_peak)+sum(probabilities_peak))
+        probabilities_noise=probabilities_noise/(sum(probabilities_noise))
+        probabilities_peak=probabilities_peak/(sum(probabilities_peak))
 
         ent = ((probabilities_noise)*(np.log(probabilities_noise))/(np.log(probabilities_peak)))-(probabilities_noise*np.log(probabilities_noise))
 
@@ -163,14 +175,14 @@ class Classification:
             sum_val2 += (probabilities_noise[i]*np.log(1/probabilities_noise[i]))#/probabilities_peak[i]))
             cum_sum2.append(sum_val2)
 
-        cross_entropy = np.array(cum_sum)-np.array(cum_sum2)
+        cross_entropy = np.array(cum_sum2)-np.array(cum_sum)
 
         qind=0
         for i in self.index_temp_bin:
             if not np.mean(abs(self.signal_[i]))-np.mean(self.signal_[i])==0:
                 peak_criterion = (np.log10(((np.sum(abs(self.signal_[i]))))*len(self.signal_[i])))*self.qual_score[qind]
                 qind+=1
-                if peak_criterion>(all_bin[np.argmin(cross_entropy)]*np.mean(self.qual_score)):
+                if peak_criterion>(all_bin[np.argmax(cross_entropy)]):
                     threshold_criterion=(((peak_criterion))/max(peak_sum_val))
                     self.index_segment_bin.append(i)
                     peak_bin.append(peak_criterion)
@@ -179,15 +191,25 @@ class Classification:
                 else:
                     Segmentation.Segmentation.index_noise_bin.append(i)        
 
-        plt.figure()
-        plt.plot(all_bin, cross_entropy)
-        plt.axvline(x=all_bin[np.argmin(cross_entropy)])
+##        plt.figure()
+##        plt.plot(all_bin, cross_entropy)
+##        plt.axvline(x=all_bin[np.argmin(cross_entropy)])
+##
+##        plt.figure()
+##        plt.hist(peak_sum_val, alpha=0.4)
+##        plt.hist(noise_sum_val, alpha=0.4)
+##        plt.axvline(x=self.entropy*np.mean(self.qual_score), linestyle='--')
+##        plt.axvline(x=all_bin[np.argmax(cross_entropy)])
 
-        plt.figure()
-        plt.hist(peak_sum_val, alpha=0.4)
-        plt.hist(noise_sum_val, alpha=0.4)
-        plt.axvline(x=self.entropy*np.mean(self.qual_score), linestyle='--')
-        plt.axvline(x=all_bin[np.argmax(cross_entropy)])
+
+    def _iter(self):
+        self.entropy_list=[0]
+        while self.entropy_list[len(self.entropy_list)-2]-self.c.entropy>0.01:
+            self.c=next(iter_class)#Classification(ar, threshold)
+            self.entropy=self.c.entropy
+            self.entropy_list.append(self.c.entropy)
+            ar = self.c.index_segment_
+            print(self.c)
            
 
         

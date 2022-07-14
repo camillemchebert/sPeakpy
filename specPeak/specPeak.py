@@ -158,12 +158,15 @@ class Peak:
         self.r=Preprocessing(self.energy, self.intensity, p_res, b_res)
         self.s=Segmentation(self.r.signal_, False)
         self.c=Classification(self.s.index_segment_, threshold)
+    
 
 ##        while self.entropy_list[len(self.entropy_list)-2]-self.c.entropy>0.01:
-##            self.c=Classification(self.c.index_segment_, threshold)
+##            self.c=next(iter_class)#Classification(ar, threshold)
 ##            self.entropy=self.c.entropy
 ##            self.entropy_list.append(self.c.entropy)
-        ##        
+##            ar = self.c.index_segment_
+##            print(self.c)
+##             
         self.c2=Classification(self.c.index_segment_bin, threshold)
         self.c3=Classification(self.c2.index_segment_bin, threshold)
         self.c4=Classification(self.c3.index_segment_bin, threshold)
@@ -176,15 +179,17 @@ class Peak:
 
         #print(len(self.c6.index_segment_bin))
 
+#        print(self.entropy_list)
+
         self.e=Identification(self.c5.index_segment_bin, dataType, self.c5.percent)
 
-        b=[]
-        for i in np.arange(len(Segmentation.index_noise_bin)):
-            b.append(list(Preprocessing.intensity[Segmentation.index_noise_bin[i]]))
-
-        plt.figure()
-        plt.hist((np.concatenate(b)))
-        plt.show()
+##        b=[]
+##        for i in np.arange(len(Segmentation.index_noise_bin)):
+##            b.append(list(Preprocessing.intensity[Segmentation.index_noise_bin[i]]))
+##
+##        plt.figure()
+##        plt.hist((np.concatenate(b)))
+##        plt.show()
 
         if plot_data==True:
             self.plot_()
