@@ -91,9 +91,9 @@ class Classification:
 ##        ax[0].set_ylabel('Normalized G(x)')
 ##        
 ##        ax[1].legend({'Noise segments'}, frameon=False)
-        plt.figure()
-        plt.hist(self.qual_score)
-        plt.show()
+##        plt.figure()
+##        plt.hist(self.qual_score)
+##        plt.show()
 
         
                 
